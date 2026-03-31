@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { post } from 'axios';
 
 @Controller()
 export class AppController {
@@ -8,5 +9,13 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+    
   }
+  @Get('/name')
+  getName(): string {
+    return this.appService.getName();
+    
+  }
+ 
+ 
 }
