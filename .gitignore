@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+# stuff i added
+text.txt
+
 # Logs
 logs
 *.log
