@@ -8,7 +8,7 @@ export class AppService {
   }
 
   getName(): string {
-    return 'ephraim';
+    return 'ephraim name';
   }
    
 }
