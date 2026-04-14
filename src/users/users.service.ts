@@ -1,31 +1,41 @@
-import { Injectable } from '@nestjs/common';
-
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 @Injectable()
 export class UsersService {
-    private users = [
-        { id: 1, name: 'Alice Banda', email: 'alice@library.com', role: 'admin' },
-        { id: 2, name: 'Bob Phiri', email: 'bob@library.com', role: 'member' },
-        { id: 3, name: 'Carol Tembo', email: 'carol@library.com', role: 'member' },
-        { id: 4, name: 'David Mwale', email: 'david@library.com', role: 'admin' },
-    ];
-    getAllUsers() {
-        return this.users;
-    }
-    getUserById(id:number){
-        const user = this.users.find(user=>user.id===id);
-        if(!user){
-            return{message:"user not found"};
-        }
-        return user;
-    }
-    getUsersByRole(role:string){
-        const results = this.users.filter(
-            user=>user.role.toLowerCase()===role.toLowerCase()
-        );
-        if(results.length===0){
-            return `No users found with role ${role}`;
-        }
-        return results;
-    }
-
+constructor(
+@InjectRepository(User)
+private usersRepository: Repository<User>,
+) {}
+// private users = [
+// { id: 1, name: 'Alice Banda', email: 'alice@library.com', role: 'admin' },
+// { id: 2, name: 'Bob Phiri', email: 'bob@library.com', role: 'member' },
+// { id: 3, name: 'Carol Tembo', email: 'carol@library.com', role: 'member' },
+// { id: 4, name: 'David Mwale', email: 'david@library.com', role: 'admin' },
+// ];
+async create(createUserDto: CreateUserDto): Promise<User> {
+const user = this.usersRepository.create(createUserDto);
+return await this.usersRepository.save(user);
+}
+async findAll(): Promise<User[]> {
+return await this.usersRepository.find();
+}
+async findOne(id: number): Promise<User> {
+const user = await this.usersRepository.findOne({ where: { id } });
+if (!user) throw new NotFoundException(`User with id ${id} not found`);
+return user;
+}
+async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+await this.findOne(id);
+await this.usersRepository.update(id, updateUserDto);
+return await this.findOne(id);
+}
+async remove(id: number): Promise<{ message: string }> {
+await this.findOne(id);
+await this.usersRepository.delete(id);
+return { message: `User ${id} deleted successfully` };
+}
 }
